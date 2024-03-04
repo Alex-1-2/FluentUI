@@ -127,8 +127,15 @@ void FluTreeModel::setDataSource(QList<QMap<QString,QVariant>> data){
         FluNode* node = new FluNode(this);
         node->_title = item.value("title").toString();
         node->_key = item.value("key").toString();
+        node->_type = item.value("type").toString();
+        node->_value = item.value("value").toString();
         node->_depth = item.value("__depth").toInt();
         node->_parent = item.value("__parent").value<FluNode*>();
+        if (node->_depth > _max_depth)
+            _max_depth = node->depth();
+        if (node->_title.size() > _max_width)
+            _max_width = node->_title.size();
+
         node->_isExpanded = true;
         if(node->_parent){
             node->_parent->_children.append(node);

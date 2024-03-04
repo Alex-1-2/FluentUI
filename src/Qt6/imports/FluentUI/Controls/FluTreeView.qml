@@ -6,6 +6,7 @@ import Qt.labs.qmlmodels
 import FluentUI
 
 Item {
+    property real max_width: 0
     property int currentIndex : -1
     property var dataSource
     property bool showLine: true
@@ -401,6 +402,8 @@ Item {
     Component{
         id:com_item_text
         Item{
+            id: line
+            property alias w: item_text.width
             width: item_text.width
             FluText {
                 id:item_text
@@ -414,7 +417,22 @@ Item {
                     return FluTheme.dark ? FluColors.White : FluColors.Grey220
                 }
             }
+            FluText {
+                id:item_type
+                text: dataModel.type
+                rightPadding: 14
+                anchors.left: parent.left
+                anchors.leftMargin: max_width + (tree_model.max_depth - dataModel.depth) * depthPadding + 10
+                anchors.verticalCenter: item_text.verticalCenter
+                color:{
+                    if(itemMouse.pressed){
+                        return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120
+                    }
+                    return FluTheme.dark ? FluColors.White : FluColors.Grey220
+                }
+            }
         }
+        onCompleted: console(line.w)
     }
     function selectionModel(){
         return tree_model.selectionModel

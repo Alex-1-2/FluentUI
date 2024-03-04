@@ -14,6 +14,8 @@ class FluNode : public QObject{
     Q_OBJECT
     Q_PROPERTY(QString key READ key CONSTANT)
     Q_PROPERTY(QString title READ title CONSTANT)
+    Q_PROPERTY(QString type READ type CONSTANT)
+    Q_PROPERTY(QString value READ value CONSTANT)
     Q_PROPERTY(int depth READ depth CONSTANT)
     Q_PROPERTY(bool isExpanded READ isExpanded CONSTANT)
     Q_PROPERTY(bool checked READ checked CONSTANT)
@@ -21,6 +23,8 @@ public:
     explicit FluNode(QObject *parent = nullptr);
     Q_INVOKABLE QString key(){return _key;};
     Q_INVOKABLE QString title(){return _title;};
+    Q_INVOKABLE QString type(){return _type;};
+    Q_INVOKABLE QString value(){return _value;};
     Q_INVOKABLE int depth(){return _depth;};
     Q_INVOKABLE bool isExpanded(){return _isExpanded;};
     Q_INVOKABLE bool hasChildren(){ return !_children.isEmpty();};
@@ -72,6 +76,8 @@ public:
 public:
     QString _key="";
     QString _title="";
+    QString _type="";
+    QString _value="";
     int _depth=0;
     bool _checked = false;
     bool _isExpanded=true;
@@ -82,6 +88,8 @@ public:
 class FluTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
+    Q_PROPERTY(int max_depth READ max_depth CONSTANT)
+    Q_PROPERTY(int max_width READ max_width CONSTANT)
     Q_PROPERTY_AUTO(int,dataSourceSize)
     Q_PROPERTY_AUTO(QList<FluNode*>,selectionModel)
     QML_NAMED_ELEMENT(FluTreeModel)
@@ -95,6 +103,8 @@ public:
     QModelIndex parent(const QModelIndex &child) const override;
     QModelIndex index(int row, int column,const QModelIndex &parent = QModelIndex()) const override;
 
+    Q_INVOKABLE int max_depth(){return _max_depth;};
+    Q_INVOKABLE int max_width(){return _max_width;};
     Q_INVOKABLE void removeRows(int row,int count);
     Q_INVOKABLE void insertRows(int row,QList<FluNode*> data);
     Q_INVOKABLE QObject* getRow(int row);
@@ -113,6 +123,8 @@ private:
     QList<FluNode*> _rows;
     QList<FluNode*> _dataSource;
     FluNode* _root = nullptr;
+    int _max_depth = 0;
+    int _max_width = 0;
 };
 
 #endif // FLUTREEMODEL_H

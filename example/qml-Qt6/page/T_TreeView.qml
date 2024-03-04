@@ -16,6 +16,8 @@ FluContentPage {
                 const key = `${path}-${i}`;
                 const treeNode = {
                     title: key,
+                    type: 'int',
+                    value: 1,
                     key,
                 };
                 if (level > 0) {
