@@ -6,7 +6,10 @@ import Qt.labs.qmlmodels
 import FluentUI
 
 Item {
-    property real max_width: 0
+    property real max_type: 0
+    property real max_value: 0
+    property real max_title: 0
+    property real max_depth: 0
     property int currentIndex : -1
     property var dataSource
     property bool showLine: true
@@ -27,6 +30,7 @@ Item {
     }
     onDataSourceChanged: {
         tree_model.setDataSource(dataSource)
+        max_depth = tree_model.max_depth
     }
     FluTreeModel{
         id:tree_model
@@ -382,6 +386,7 @@ Item {
                     }
                     Layout.alignment: Qt.AlignVCenter
                 }
+
                 FluLoader{
                     property var dataModel: itemModel
                     property var itemMouse: item_mouse
@@ -402,37 +407,54 @@ Item {
     Component{
         id:com_item_text
         Item{
-            id: line
-            property alias w: item_text.width
-            width: item_text.width
+            width: item_text.width + item_type.width + item_value.width + 100
             FluText {
                 id:item_text
                 text: dataModel.title
                 rightPadding: 14
-                anchors.centerIn: parent
+                //anchors.centerIn: parent
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
                 color:{
                     if(itemMouse.pressed){
                         return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120
                     }
                     return FluTheme.dark ? FluColors.White : FluColors.Grey220
                 }
+                Component.onCompleted: max_title = Math.max(max_title, item_text.contentWidth)
             }
             FluText {
                 id:item_type
                 text: dataModel.type
                 rightPadding: 14
                 anchors.left: parent.left
-                anchors.leftMargin: max_width + (tree_model.max_depth - dataModel.depth) * depthPadding + 10
-                anchors.verticalCenter: item_text.verticalCenter
+                anchors.leftMargin: max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 50
+                anchors.verticalCenter: parent.verticalCenter
                 color:{
                     if(itemMouse.pressed){
                         return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120
                     }
                     return FluTheme.dark ? FluColors.White : FluColors.Grey220
                 }
+                Component.onCompleted: max_type = Math.max(max_type, item_type.contentWidth)
             }
+            FluText {
+                id:item_value
+                text: dataModel.value
+                rightPadding: 14
+                anchors.left: parent.left
+                anchors.leftMargin: max_type + max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 100
+                anchors.verticalCenter: parent.verticalCenter
+                color:{
+                    if(itemMouse.pressed){
+                        return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120
+                    }
+                    return FluTheme.dark ? FluColors.White : FluColors.Grey220
+                }
+                Component.onCompleted: max_value = Math.max(max_value, item_value.contentWidth)
+            }
+
         }
-        onCompleted: console(line.w)
     }
     function selectionModel(){
         return tree_model.selectionModel
