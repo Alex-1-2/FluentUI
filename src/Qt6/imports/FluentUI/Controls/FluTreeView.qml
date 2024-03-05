@@ -7,7 +7,7 @@ import FluentUI
 
 Item {
     property real max_type: 0
-    property real max_value: 0
+    property real max_value: 200
     property real max_title: 0
     property real max_depth: 0
     property int currentIndex : -1
@@ -441,6 +441,7 @@ Item {
             FluText {
                 id:item_value
                 text: dataModel.value
+                width: max_value
                 rightPadding: 14
                 anchors.left: parent.left
                 anchors.leftMargin: max_type + max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 100
