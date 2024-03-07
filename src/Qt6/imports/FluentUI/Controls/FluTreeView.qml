@@ -6,6 +6,7 @@ import Qt.labs.qmlmodels
 import FluentUI
 
 Item {
+    property var tmodel: tree_model
     property real max_type: 0
     property real max_value: 200
     property real max_title: 0

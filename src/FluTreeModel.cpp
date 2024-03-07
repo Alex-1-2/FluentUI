@@ -128,13 +128,13 @@ void FluTreeModel::setDataSource(QList<QMap<QString,QVariant>> data){
         node->_title = item.value("title").toString();
         node->_key = item.value("key").toString();
         node->_type = item.value("type").toString();
+        node->_raw_type = item.value("raw_type").toString();
         node->_value = item.value("value").toString();
         node->_depth = item.value("__depth").toInt();
         node->_parent = item.value("__parent").value<FluNode*>();
+
         if (node->_depth > _max_depth)
             _max_depth = node->depth();
-        if (node->_title.size() > _max_width)
-            _max_width = node->_title.size();
 
         node->_isExpanded = true;
         if(node->_parent){
@@ -161,6 +161,7 @@ void FluTreeModel::setDataSource(QList<QMap<QString,QVariant>> data){
     _rows = _dataSource;
     endResetModel();
     dataSourceSize(_dataSource.size());
+    WriteIndex();
 }
 
 void FluTreeModel::collapse(int row){
@@ -372,4 +373,29 @@ void FluTreeModel::allCollapse(){
     }
     _rows = _root->_children;
     endResetModel();
+}
+
+void FluTreeModel::WriteIndex()
+{
+    for (int i = 0; i < _rows.size(); ++i)
+    {
+        if (_rows[i]->_children.size() == 0)
+        {
+            QMetaType id = QMetaType::fromName(_rows[i]->_raw_type.toUtf8());
+            _map[i] = id;
+        }
+    }
+}
+
+void FluTreeModel::update(char* data)
+{
+    int offset = 0;
+    QMap<int, QMetaType>::iterator itor;
+    for (itor = _map.begin(); itor != _map.end(); ++itor)
+    {
+        _dataSource[itor.key()]->_value = CopyValues(data, itor.value(), offset);
+        offset += itor.value().sizeOf();
+        qDebug() << _dataSource[itor.key()]->_value;
+    }
+    emit dataSourceSizeChanged();
 }

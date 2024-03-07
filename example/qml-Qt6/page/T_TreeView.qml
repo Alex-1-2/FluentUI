@@ -18,6 +18,7 @@ FluContentPage {
                     title: key,
                     type: 'int',
                     value: 1,
+                    raw_type: 'int',
                     key,
                 };
                 if (level > 0) {

@@ -78,6 +78,7 @@ public:
     QString _title="";
     QString _type="";
     QString _value="";
+    QString _raw_type="";
     int _depth=0;
     bool _checked = false;
     bool _isExpanded=true;
@@ -89,7 +90,6 @@ class FluTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_PROPERTY(int max_depth READ max_depth CONSTANT)
-    Q_PROPERTY(int max_width READ max_width CONSTANT)
     Q_PROPERTY_AUTO(int,dataSourceSize)
     Q_PROPERTY_AUTO(QList<FluNode*>,selectionModel)
     QML_NAMED_ELEMENT(FluTreeModel)
@@ -104,7 +104,6 @@ public:
     QModelIndex index(int row, int column,const QModelIndex &parent = QModelIndex()) const override;
 
     Q_INVOKABLE int max_depth(){return _max_depth;};
-    Q_INVOKABLE int max_width(){return _max_width;};
     Q_INVOKABLE void removeRows(int row,int count);
     Q_INVOKABLE void insertRows(int row,QList<FluNode*> data);
     Q_INVOKABLE QObject* getRow(int row);
@@ -119,12 +118,54 @@ public:
     Q_INVOKABLE bool hitHasChildrenExpanded(int row);
     Q_INVOKABLE void allExpand();
     Q_INVOKABLE void allCollapse();
+
+    Q_INVOKABLE void update(char* data);
 private:
     QList<FluNode*> _rows;
     QList<FluNode*> _dataSource;
     FluNode* _root = nullptr;
     int _max_depth = 0;
-    int _max_width = 0;
+    QMap<int, QMetaType> _map;
+    void WriteIndex();
+    QString CopyValues(char* data, QMetaType& type, int offset);
 };
+
+inline QString FluTreeModel::CopyValues(char* data, QMetaType& type, int offset)
+{
+    int size = type.sizeOf();
+    switch (type.id()) {
+    case QMetaType::Bool:{
+        bool res = false;
+        memcpy(&res, data+offset, size);
+        return QString::number(res);
+    }
+    case QMetaType::Int:{
+        int res = 0;
+        memcpy(&res, data+offset, size);
+        return QString::number(res);
+    }
+    case QMetaType::Double:{
+        double res = 0;
+        memcpy(&res, data+offset, size);
+        return QString::number(res);
+    }
+    case QMetaType::Char:{
+        char res = 0;
+        memcpy(&res, data+offset, size);
+        return QString::number(res);
+    }
+    case QMetaType::UChar:{
+        unsigned char res = 0;
+        memcpy(&res, data+offset, size);
+        return QString::number(res);
+    }
+    case QMetaType::Float:{
+        float res = 0;
+        memcpy(&res, data+offset, size);
+        return QString::number(res);
+    }
+    }
+    return QString();
+}
 
 #endif // FLUTREEMODEL_H
