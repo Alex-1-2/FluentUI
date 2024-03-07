@@ -397,5 +397,8 @@ void FluTreeModel::update(char* data)
         offset += itor.value().sizeOf();
         qDebug() << _dataSource[itor.key()]->_value;
     }
-    emit dataSourceSizeChanged();
+    // for (int i = 0; i < _rows.size(); ++i)
+    //     Q_EMIT dataChanged(index(i,0),index(i,0));
+
+    Q_EMIT dataChanged(index(0,0),index(_rows.size() - 1,0));
 }
