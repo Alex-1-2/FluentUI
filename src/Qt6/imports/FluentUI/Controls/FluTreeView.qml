@@ -8,7 +8,7 @@ import FluentUI
 Item {
     property var tmodel: tree_model
     property real max_type: 0
-    property real max_value: 200
+    property real max_value: 100
     property real max_title: 0
     property real max_depth: 0
     property int currentIndex : -1
@@ -408,7 +408,7 @@ Item {
     Component{
         id:com_item_text
         Item{
-            width: item_text.width + item_type.width + item_value.width + 100
+            width: item_text.width + item_type.width + item_value.width + 50
             FluText {
                 id:item_text
                 text: dataModel.title
@@ -427,9 +427,9 @@ Item {
             FluText {
                 id:item_type
                 text: dataModel.type
-                rightPadding: 14
+                //rightPadding: 14
                 anchors.left: parent.left
-                anchors.leftMargin: max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 50
+                anchors.leftMargin: max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 25
                 anchors.verticalCenter: parent.verticalCenter
                 color:{
                     if(itemMouse.pressed){
@@ -443,9 +443,9 @@ Item {
                 id:item_value
                 text: dataModel.value
                 width: max_value
-                rightPadding: 14
+                //rightPadding: 14
                 anchors.left: parent.left
-                anchors.leftMargin: max_type + max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 100
+                anchors.leftMargin: max_type + max_title + (tree_model.max_depth - dataModel.depth) * depthPadding + 50
                 anchors.verticalCenter: parent.verticalCenter
                 color:{
                     if(itemMouse.pressed){
