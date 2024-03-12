@@ -8,7 +8,7 @@ import "../component"
 FluWindow {
 
     id:window
-    title:"热加载"
+    title: qsTr("Hot Loader")
     width: 800
     height: 600
     minimumWidth: 520
@@ -40,7 +40,7 @@ FluWindow {
             }
         }
         FluText{
-            text:"拖入qml文件"
+            text: qsTr("Drag in a qml file")
             font.pixelSize: 26
             anchors.centerIn: parent
             visible: !loader.itemLodaer().item && loader.statusMode === FluStatusLayoutType.Success

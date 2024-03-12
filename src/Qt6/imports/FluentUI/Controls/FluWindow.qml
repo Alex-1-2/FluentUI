@@ -4,9 +4,8 @@ import QtQuick.Layouts
 import FluentUI
 
 Window {
-    default property alias content: layout_content.data
+    default property list<QtObject> contentData
     property string windowIcon: FluApp.windowIcon
-    property bool closeDestory: true
     property int launchMode: FluWindowType.Standard
     property var argument:({})
     property var background : com_background
@@ -30,16 +29,15 @@ Window {
         return FluTheme.windowBackgroundColor
     }
     property bool stayTop: false
-    property var _pageRegister
-    property string _route
     property bool showDark: false
     property bool showClose: true
     property bool showMinimize: true
     property bool showMaximize: true
-    property bool showStayTop: true
+    property bool showStayTop: false
     property bool autoMaximize: false
     property bool autoVisible: true
     property bool autoCenter: true
+    property bool autoDestory: true
     property bool useSystemAppBar
     property color resizeBorderColor: {
         if(window.active){
@@ -49,7 +47,7 @@ Window {
     }
     property int resizeBorderWidth: 1
     property var closeListener: function(event){
-        if(closeDestory){
+        if(autoDestory){
             destoryOnClose()
         }else{
             visible = false
@@ -59,11 +57,11 @@ Window {
     signal showSystemMenu
     signal initArgument(var argument)
     signal firstVisible()
-    property point _offsetXY : Qt.point(0,0)
-    property var _originalPos
     property int _realHeight
     property int _realWidth
     property int _appBarHeight: appBar.height
+    property var _windowRegister
+    property string _route
     id:window
     color:"transparent"
     Component.onCompleted: {
@@ -90,19 +88,6 @@ Window {
     Component.onDestruction: {
         lifecycle.onDestruction()
     }
-    on_OriginalPosChanged: {
-        if(_originalPos){
-            var dx = (_originalPos.x - screen.virtualX)/screen.devicePixelRatio
-            var dy = (_originalPos.y - screen.virtualY)/screen.devicePixelRatio
-            if(dx<0 && dy<0){
-                _offsetXY = Qt.point(Math.abs(dx)-1,Math.abs(dy)-1)
-            }else{
-                _offsetXY = Qt.point(0,0)
-            }
-        }else{
-            _offsetXY = Qt.point(0,0)
-        }
-    }
     onShowSystemMenu: {
         if(loader_frameless_helper.item){
             loader_frameless_helper.item.showSystemMenu()
@@ -114,6 +99,9 @@ Window {
             d.isFirstVisible = false
         }
         lifecycle.onVisible(visible)
+    }
+    onWidthChanged: {
+        window.appBar.width = width
     }
     QtObject{
         id:d
@@ -218,72 +206,62 @@ Window {
     FluLoader{
         id:loader_frameless_helper
     }
+    FluLoader{
+        anchors.fill: parent
+        sourceComponent: background
+    }
+    FluLoader{
+        id:loader_app_bar
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        height: {
+            if(window.useSystemAppBar){
+                return 0
+            }
+            return window.fitsAppBarWindows ? 0 : window.appBar.height
+        }
+        sourceComponent: window.useSystemAppBar ? undefined : com_app_bar
+    }
     Item{
-        id:layout_container
+        data: window.contentData
         anchors{
-            fill:parent
-            topMargin: _offsetXY.y
+            top: loader_app_bar.bottom
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
         }
-        onWidthChanged: {
-            window.appBar.width = width
-        }
-        FluLoader{
-            anchors.fill: parent
-            sourceComponent: background
-        }
-        FluLoader{
-            id:loader_app_bar
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
+        clip: true
+    }
+    FluLoader{
+        property string loadingText: "加载中..."
+        property bool cancel: false
+        id:loader_loading
+        anchors.fill: parent
+    }
+    FluInfoBar{
+        id:infoBar
+        root: window
+    }
+    FluWindowLifecycle{
+        id:lifecycle
+    }
+    FluLoader{
+        id:loader_border
+        anchors.fill: parent
+        sourceComponent: {
+            if(window.useSystemAppBar){
+                return undefined
             }
-            height: {
-                if(window.useSystemAppBar){
-                    return 0
-                }
-                return window.fitsAppBarWindows ? 0 : window.appBar.height
+            if(FluTools.isWindows10OrGreater()){
+                return undefined
             }
-            sourceComponent: window.useSystemAppBar ? undefined : com_app_bar
-        }
-        Item{
-            id:layout_content
-            anchors{
-                top: loader_app_bar.bottom
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+            if(window.visibility === Window.Maximized || window.visibility === Window.FullScreen){
+                return undefined
             }
-            clip: true
-        }
-        FluLoader{
-            property string loadingText: "加载中..."
-            property bool cancel: false
-            id:loader_loading
-            anchors.fill: layout_content
-        }
-        FluInfoBar{
-            id:infoBar
-            root: window
-        }
-        FluWindowLifecycle{
-            id:lifecycle
-        }
-        FluLoader{
-            id:loader_border
-            anchors.fill: parent
-            sourceComponent: {
-                if(window.useSystemAppBar){
-                    return undefined
-                }
-                if(FluTools.isWindows10OrGreater()){
-                    return undefined
-                }
-                if(window.visibility == Window.Maximized || window.visibility == Window.FullScreen){
-                    return undefined
-                }
-                return com_border
-            }
+            return com_border
         }
     }
     function destoryOnClose(){
@@ -309,9 +287,6 @@ Window {
     function showError(text,duration,moremsg){
         infoBar.showError(text,duration,moremsg)
     }
-    function registerForWindowResult(path){
-        return lifecycle.createRegister(window,path)
-    }
     function moveWindowToDesktopCenter(){
         screen = Qt.application.screens[FluTools.cursorScreenIndex()]
         var taskBarHeight = FluTools.getTaskBarHeight(window)
@@ -325,15 +300,21 @@ Window {
             window.minimumHeight = window.height
         }
     }
+    function registerForWindowResult(path){
+        return FluApp.createWindowRegister(window,path)
+    }
     function onResult(data){
-        if(_pageRegister){
-            _pageRegister.onResult(data)
+        if(_windowRegister){
+            _windowRegister.onResult(data)
         }
     }
-    function layoutContainer(){
-        return layout_container
-    }
-    function layoutContent(){
-        return layout_content
+    function showMaximized(){
+        if(FluTools.isWin()){
+            if(loader_frameless_helper.item){
+                loader_frameless_helper.item.showMaximized()
+            }
+        }else{
+            window.visibility = Qt.WindowMaximized
+        }
     }
 }
