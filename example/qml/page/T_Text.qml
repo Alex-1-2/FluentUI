@@ -9,21 +9,29 @@ FluScrollablePage{
 
     title: qsTr("Text")
 
-    FluArea{
+    FluFrame{
         Layout.fillWidth: true
-        Layout.topMargin: 20
-        height: 60
-        paddings: 10
+        Layout.preferredHeight: 60
+        padding: 10
 
         FluCopyableText{
+            enabled: !toggle_switch.checked
             text: qsTr("This is a text that can be copied")
             anchors.verticalCenter: parent.verticalCenter
         }
 
+        FluToggleSwitch{
+            id: toggle_switch
+            anchors{
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+            }
+            text: qsTr("Disabled")
+        }
     }
     CodeExpander{
         Layout.fillWidth: true
-        Layout.topMargin: -1
+        Layout.topMargin: -6
         code:'FluCopyableText{
     text: qsTr("This is a text that can be copied")
 }'

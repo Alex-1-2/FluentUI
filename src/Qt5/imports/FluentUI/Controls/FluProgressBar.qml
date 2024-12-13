@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import FluentUI 1.0
 
 ProgressBar{
+    property int duration: 888
     property real strokeWidth: 6
     property bool progressVisible: false
     property color color: FluTheme.primaryColor
@@ -17,7 +18,7 @@ ProgressBar{
         if(!indeterminate){
             animator_x.duration = 0
             rect_progress.x = 0
-            animator_x.duration = 888
+            animator_x.duration = control.duration
         }
     }
     background: Rectangle {
@@ -40,13 +41,15 @@ ProgressBar{
             height: parent.height
             radius: d._radius
             color: control.color
-            PropertyAnimation on x {
-                id:animator_x
+            SequentialAnimation on x {
+                id: animator_x
                 running: control.indeterminate && control.visible
-                from: -rect_progress.width
-                to:control.width+rect_progress.width
                 loops: Animation.Infinite
-                duration: 888
+                PropertyAnimation {
+                    from: -rect_progress.width
+                    to: control.width + rect_progress.width
+                    duration: control.duration
+                }
             }
         }
     }

@@ -2,11 +2,11 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQml 2.15
 import Qt.labs.platform 1.1
 import FluentUI 1.0
 import example 1.0
 import "../component"
-import "../viewmodel"
 import "../global"
 
 FluWindow {
@@ -14,51 +14,40 @@ FluWindow {
     id:window
     title: "FluentUI"
     width: 1000
-    height: 680
-    minimumWidth: 520
-    minimumHeight: 200
+    height: 668
+    minimumWidth: 668
+    minimumHeight: 320
     launchMode: FluWindowType.SingleTask
     fitsAppBarWindows: true
     appBar: FluAppBar {
         height: 30
-        darkText: qsTr("Dark Mode")
         showDark: true
         darkClickListener:(button)=>handleDarkChanged(button)
         closeClickListener: ()=>{dialog_close.open()}
         z:7
     }
 
-    SettingsViewModel{
-        id:viewmodel_settings
+    FluentInitializrWindow{
+        id:fluent_Initializr
     }
 
     FluEvent{
-        id:event_checkupdate
         name: "checkUpdate"
         onTriggered: {
             checkUpdate(false)
         }
     }
 
-    onFirstVisible: {
-        timer_tour_delay.restart()
-    }
-
-    Timer{
-        id:timer_tour_delay
-        interval: 200
-        onTriggered: {
-            tour.open()
-        }
+    onLazyLoad: {
+        tour.open()
     }
 
     Component.onCompleted: {
         checkUpdate(true)
-        FluEventBus.registerEvent(event_checkupdate)
     }
 
     Component.onDestruction: {
-        FluEventBus.unRegisterEvent(event_checkupdate)
+        FluRouter.exit()
     }
 
     SystemTrayIcon {
@@ -70,7 +59,7 @@ FluWindow {
             MenuItem {
                 text: "退出"
                 onTriggered: {
-                    FluApp.exit()
+                    FluRouter.exit()
                 }
             }
         }
@@ -105,7 +94,7 @@ FluWindow {
         positiveText: qsTr("Quit")
         neutralText: qsTr("Cancel")
         onPositiveClicked:{
-            FluApp.exit(0)
+            FluRouter.exit(0)
         }
     }
 
@@ -115,9 +104,9 @@ FluWindow {
             width: 186
             FluMenuItem{
                 text: qsTr("Open in Separate Window")
-                font.pixelSize: 12
+                font: FluTextStyle.Caption
                 onClicked: {
-                    FluApp.navigate("/pageWindow",{title:modelData.title,url:modelData.url})
+                    FluRouter.navigate("/pageWindow",{title:modelData.title,url:modelData.url})
                 }
             }
         }
@@ -174,14 +163,14 @@ FluWindow {
                     }
                 }
                 Component.onCompleted: {
-                    appBar.setHitTestVisible(layout_back_buttons)
+                    window.setHitTestVisible(layout_back_buttons)
                 }
             }
             FluRemoteLoader{
                 id:loader
                 lazy: true
                 anchors.fill: parent
-                source: "https://zhu-zichu.gitee.io/Qt_168_LieflatPage.qml"
+                source: "https://zhu-zichu.gitee.io/Qt_174_LieflatPage.qml"
             }
         }
         front: Item{
@@ -196,7 +185,7 @@ FluWindow {
                 z:999
                 //Stack模式，每次切换都会将页面压入栈中，随着栈的页面增多，消耗的内存也越多，内存消耗多就会卡顿，这时候就需要按返回将页面pop掉，释放内存。该模式可以配合FluPage中的launchMode属性，设置页面的启动模式
                 //                pageMode: FluNavigationViewType.Stack
-                //NoStack模式，每次切换都会销毁之前的页面然后创建一个新的页面，只需消耗少量内存，可以配合FluViewModel保存页面数据（推荐）
+                //NoStack模式，每次切换都会销毁之前的页面然后创建一个新的页面，只需消耗少量内存
                 pageMode: FluNavigationViewType.NoStack
                 items: ItemsOriginal
                 footerItems:ItemsFooter
@@ -206,7 +195,7 @@ FluWindow {
                     }
                     return FluTools.isMacos() ? 20 : 0
                 }
-                displayMode:viewmodel_settings.displayMode
+                displayMode: GlobalModel.displayMode
                 logo: "qrc:/example/res/image/favicon.ico"
                 title:"FluentUI"
                 onLogoClicked:{
@@ -232,9 +221,9 @@ FluWindow {
                     ItemsOriginal.paneItemMenu = nav_item_right_menu
                     ItemsFooter.navigationView = nav_view
                     ItemsFooter.paneItemMenu = nav_item_right_menu
-                    appBar.setHitTestVisible(nav_view.buttonMenu)
-                    appBar.setHitTestVisible(nav_view.buttonBack)
-                    appBar.setHitTestVisible(nav_view.imageLogo)
+                    window.setHitTestVisible(nav_view.buttonMenu)
+                    window.setHitTestVisible(nav_view.buttonBack)
+                    window.setHitTestVisible(nav_view.imageLogo)
                     setCurrentIndex(0)
                 }
             }
@@ -245,8 +234,9 @@ FluWindow {
         id: com_reveal
         CircularReveal{
             id: reveal
-            target: window.contentItem
+            target: window.containerItem()
             anchors.fill: parent
+            darkToLight: FluTheme.dark
             onAnimationFinished:{
                 //动画结束后释放资源
                 loader_reveal.sourceComponent = undefined
@@ -267,17 +257,14 @@ FluWindow {
     }
 
     function handleDarkChanged(button){
-        if(!FluTheme.enableAnimation || window.fitsAppBarWindows === false){
+        if(FluTools.isMacos() || !FluTheme.animationEnabled){
             changeDark()
         }else{
-            if(loader_reveal.sourceComponent){
-                return
-            }
             loader_reveal.sourceComponent = com_reveal
-            var target = window.contentItem
+            var target = window.containerItem()
             var pos = button.mapToItem(target,0,0)
-            var mouseX = pos.x
-            var mouseY = pos.y
+            var mouseX = pos.x + button.width / 2
+            var mouseY = pos.y + button.height / 2
             var radius = Math.max(distance(mouseX,mouseY,0,0),distance(mouseX,mouseY,target.width,0),distance(mouseX,mouseY,0,target.height),distance(mouseX,mouseY,target.width,target.height))
             var reveal = loader_reveal.item
             reveal.start(reveal.width*Screen.devicePixelRatio,reveal.height*Screen.devicePixelRatio,Qt.point(mouseX,mouseY),radius)
@@ -354,11 +341,11 @@ FluWindow {
         }
     }
 
-    FluNetworkCallable{
+    NetworkCallable{
         id:callable
         property bool silent: true
         onStart: {
-            console.debug("satrt check update...")
+            console.debug("start check update...")
         }
         onFinish: {
             console.debug("check update finish")
@@ -390,7 +377,7 @@ FluWindow {
 
     function checkUpdate(silent){
         callable.silent = silent
-        FluNetwork.get("https://api.github.com/repos/zhuzichu520/FluentUI/releases/latest")
+        Network.get("https://api.github.com/repos/zhuzichu520/FluentUI/releases/latest")
         .go(callable)
     }
 }

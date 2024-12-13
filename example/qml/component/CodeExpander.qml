@@ -16,7 +16,7 @@ FluExpander{
         id:content
         width:parent.width
         text:highlightQmlCode(code)
-        textFormat: FluMultilineTextBox.RichText
+        textFormat: FluCopyableText.RichText
         padding: 10
         topPadding: 10
         leftPadding: 10
@@ -135,7 +135,11 @@ FluExpander{
                     "FluLoadingButton",
                     "FluClip",
                     "FluNetwork",
-                    "FluShortcutPicker"
+                    "FluShortcutPicker",
+                    "FluWindowResultLauncher",
+                    "FluRouter",
+                    "FluGroupBox",
+                    "FluSheet",
                 ];
         code = code.replace(/\n/g, "<br>");
         code = code.replace(/ /g, "&nbsp;");

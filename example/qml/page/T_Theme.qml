@@ -11,11 +11,10 @@ FluScrollablePage{
     id: root
     title: qsTr("Theme")
 
-    FluArea{
+    FluFrame{
         Layout.fillWidth: true
-        Layout.topMargin: 20
-        Layout.preferredHeight: 340
-        paddings: 10
+        Layout.fillHeight: true
+        padding: 10
 
         ColumnLayout{
             spacing:0
@@ -35,7 +34,7 @@ FluScrollablePage{
                         height: 42
                         radius: 4
                         color: mouse_item.containsMouse ? Qt.lighter(modelData.normal,1.1) : modelData.normal
-                        border.color: modelData.darkest
+                        border.color: modelData.darker
                         FluIcon {
                             anchors.centerIn: parent
                             iconSource: FluentIcons.AcceptMedium
@@ -115,16 +114,84 @@ FluScrollablePage{
             }
             FluToggleSwitch{
                 Layout.topMargin: 5
-                checked: FluTheme.enableAnimation
+                checked: FluTheme.animationEnabled
                 onClicked: {
-                    FluTheme.enableAnimation = !FluTheme.enableAnimation
+                    FluTheme.animationEnabled = !FluTheme.animationEnabled
+                }
+            }
+            FluText{
+                text: qsTr("Open Blur Window")
+                Layout.topMargin: 20
+            }
+            FluToggleSwitch{
+                id: toggle_blur
+                Layout.topMargin: 5
+                checked: FluTheme.blurBehindWindowEnabled
+                onClicked: {
+                    FluTheme.blurBehindWindowEnabled = !FluTheme.blurBehindWindowEnabled
+                }
+            }
+            FluText{
+                text: qsTr("window effect")
+                Layout.topMargin: 20
+            }
+            Row{
+                spacing: 10
+                Repeater{
+                    model: window.availableEffects
+                    delegate: FluRadioButton{
+                        checked: window.effect === modelData
+                        text: qsTr(`${modelData}`)
+                        clickListener:function(){
+                            window.effect = modelData
+                            if(window.effective){
+                                FluTheme.blurBehindWindowEnabled = false
+                                toggle_blur.checked = Qt.binding( function() {return FluTheme.blurBehindWindowEnabled})
+                            }
+                        }
+                    }
+
+                }
+            }
+            FluText{
+                visible: FluTheme.blurBehindWindowEnabled || window.effect === "dwm-blur"
+                text: qsTr("window tintOpacity")
+                Layout.topMargin: 20
+            }
+            FluSlider{
+                visible: FluTheme.blurBehindWindowEnabled || window.effect === "dwm-blur"
+                Layout.topMargin: 5
+                to:1
+                stepSize:0.1
+                onValueChanged: {
+                    window.tintOpacity = value
+                }
+                Component.onCompleted: {
+                    value = window.tintOpacity
+                }
+            }
+            FluText{
+                visible: FluTheme.blurBehindWindowEnabled
+                text: qsTr("window blurRadius")
+                Layout.topMargin: 20
+            }
+            FluSlider{
+                visible: FluTheme.blurBehindWindowEnabled
+                Layout.topMargin: 5
+                to:100
+                stepSize:1
+                onValueChanged: {
+                    window.blurRadius = value
+                }
+                Component.onCompleted: {
+                    value = window.blurRadius
                 }
             }
         }
     }
     CodeExpander{
         Layout.fillWidth: true
-        Layout.topMargin: -1
+        Layout.topMargin: -6
         code:'FluTheme.accentColor = FluColors.Orange
 
 FluTheme.dark = true

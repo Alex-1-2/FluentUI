@@ -8,9 +8,9 @@ FluPopup {
     id: control
     property string title: ""
     property string message: ""
-    property string neutralText: "Close"
-    property string negativeText: "Cancel"
-    property string positiveText: "OK"
+    property string neutralText: qsTr("Close")
+    property string negativeText: qsTr("Cancel")
+    property string positiveText: qsTr("OK")
     property int messageTextFormart: Text.AutoText
     property int delayTime: 100
     property int buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.PositiveButton
@@ -41,7 +41,7 @@ FluPopup {
             FluText{
                 id:text_message
                 font: FluTextStyle.Body
-                wrapMode: Text.WrapAnywhere
+                wrapMode: Text.WordWrap
                 text:message
                 width: parent.width
                 topPadding: 4
@@ -67,7 +67,7 @@ FluPopup {
                 topPadding: 20
                 leftPadding: 20
                 rightPadding: 20
-                wrapMode: Text.WrapAnywhere
+                wrapMode: Text.WordWrap
             }
             FluLoader{
                 sourceComponent: com_message

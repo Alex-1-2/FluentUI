@@ -9,11 +9,10 @@ FluScrollablePage{
 
     title: qsTr("Image")
 
-    FluArea{
+    FluFrame{
         Layout.fillWidth: true
-        height: 260
-        paddings: 10
-        Layout.topMargin: 20
+        Layout.preferredHeight: 260
+        padding: 10
         Column{
             spacing: 15
             anchors{
@@ -24,7 +23,6 @@ FluScrollablePage{
                 width: 384
                 height: 240
                 source: "https://gitee.com/zhu-zichu/zhu-zichu/raw/74f075efe2f8d3c3bb7ba3c2259e403450e4050b/image/banner_4.jpg"
-                errorButtonText: qsTr("Reload")
                 onStatusChanged:{
                     if(status === Image.Error){
                         showError(qsTr("The image failed to load, please reload"))
@@ -38,7 +36,7 @@ FluScrollablePage{
     }
     CodeExpander{
         Layout.fillWidth: true
-        Layout.topMargin: -1
+        Layout.topMargin: -6
         code:'FluImage{
     width: 400
     height: 300

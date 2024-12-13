@@ -9,11 +9,10 @@ FluScrollablePage{
 
     title: qsTr("Pagination")
 
-    FluArea{
+    FluFrame{
         Layout.fillWidth: true
-        height: 200
-        paddings: 10
-        Layout.topMargin: 20
+        Layout.preferredHeight: 200
+        padding: 10
         ColumnLayout{
             spacing: 20
             anchors.verticalCenter: parent.verticalCenter
@@ -21,29 +20,23 @@ FluScrollablePage{
                 pageCurrent: 1
                 pageButtonCount: 5
                 itemCount: 5000
-                previousText: qsTr("<Previous")
-                nextText: qsTr("Next>")
             }
             FluPagination{
                 pageCurrent: 2
                 itemCount: 5000
                 pageButtonCount: 7
-                previousText: qsTr("<Previous")
-                nextText: qsTr("Next>")
             }
             FluPagination{
                 pageCurrent: 3
                 itemCount: 5000
                 pageButtonCount: 9
-                previousText: qsTr("<Previous")
-                nextText: qsTr("Next>")
             }
         }
 
     }
     CodeExpander{
         Layout.fillWidth: true
-        Layout.topMargin: -1
+        Layout.topMargin: -6
         code:'FluPagination{
     pageCurrent: 1
     itemCount: 1000

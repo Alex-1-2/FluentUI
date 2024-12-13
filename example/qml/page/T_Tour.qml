@@ -11,9 +11,6 @@ FluScrollablePage{
 
     FluTour{
         id:tour
-        finishText: qsTr("Finish")
-        nextText: qsTr("Next")
-        previousText: qsTr("Previous")
         steps:[
             {title:qsTr("Upload File"),description: qsTr("Put your files here."),target:()=>btn_upload},
             {title:qsTr("Save"),description: qsTr("Save your changes."),target:()=>btn_save},
@@ -21,11 +18,10 @@ FluScrollablePage{
         ]
     }
 
-    FluArea{
+    FluFrame{
         Layout.fillWidth: true
-        height: 130
-        paddings: 10
-        Layout.topMargin: 20
+        Layout.preferredHeight: 130
+        padding: 10
 
         FluFilledButton{
             anchors{
@@ -69,7 +65,7 @@ FluScrollablePage{
     }
     CodeExpander{
         Layout.fillWidth: true
-        Layout.topMargin: -1
+        Layout.topMargin: -6
         code:'FluTour{
     id:tour
     steps:[

@@ -25,7 +25,7 @@ TextField{
     leftPadding: padding+4
     echoMode:btn_reveal.pressed ? TextField.Normal : TextField.Password
     renderType: FluTheme.nativeText ? Text.NativeRendering : Text.QtRendering
-    selectionColor: FluTools.colorAlpha(FluTheme.primaryColor,0.5)
+    selectionColor: FluTools.withOpacity(FluTheme.primaryColor,0.5)
     selectedTextColor: color
     placeholderTextColor: {
         if(!enabled){
@@ -64,9 +64,5 @@ TextField{
             right: parent.right
             rightMargin: 5
         }
-    }
-    FluTextBoxMenu{
-        id:menu
-        inputItem: control
     }
 }
